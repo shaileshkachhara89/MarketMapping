@@ -38,28 +38,24 @@ router.post('/signin', async (req, res) => {
   }
 });
 
+
 router.post('/user_add', async (req, res) => {
-  console.log('Sign-in request received');
-  console.log('Request body:', req.body);
   const { email, password } = req.body;
-
   try {
-    // Hash the password
-    const saltRounds = 10;
-    const hashedPassword = await bcrypt.hash(password, saltRounds);
+    // Check if email already exists
+    const existingUser = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
+    if (existingUser.rows.length > 0) {
+      return res.status(400).json({ error: 'Email already in use' });
+    }
 
-    // Insert into PostgreSQL
-    const result = await pool.query(
-      'INSERT INTO users (email, password) VALUES ($1, $2) RETURNING *',
-      [email, hashedPassword]
-    );
-
-    res.status(201).json({ user: result.rows[0] });
+    const hashedPassword = await bcrypt.hash(password, 10);
+    await pool.query('INSERT INTO users (email, password) VALUES ($1, $2)', [email, hashedPassword]);
+    res.status(201).json({ message: 'User registered successfully' });
   } catch (err) {
-    console.error(err);
-    res.status(500).send('Error registering user');
+    res.status(500).json({ error: 'User registration failed' });
   }
 });
+
 
 
 export default router;
