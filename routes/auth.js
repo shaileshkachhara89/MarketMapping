@@ -6,20 +6,29 @@ const router = express.Router();
 
 // Sign-in route
 router.post('/signin', async (req, res) => {
+  console.log('Sign-in request received');
+  console.log('Request body:', req.body); 
   const { email, password } = req.body;
 
   try {
     const result = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
 
     if (result.rows.length === 0) {
-      return res.status(401).json({ message: 'Invalid email or password' });
+      return res.status(401).json({ message: 'Invalid email' });
     }
+
+    /*
+    const result1 = await pool.query('SELECT * FROM users WHERE password = $1', [password]);
+
+    if (result1.rows.length === 0) {
+      return res.status(401).json({ message: 'Invalid password' });
+    }*/
 
     const user = result.rows[0];
     const isMatch = await bcrypt.compare(password, user.password);
 
     if (!isMatch) {
-     res.status(401).json({ message: 'Invalid email or password' });
+     res.status(401).json({ message: 'Invalid password' });
     }
 
     res.status(200).json({ message: 'Sign-in successful', user: { id: user.id, email: user.email } });
@@ -30,6 +39,8 @@ router.post('/signin', async (req, res) => {
 });
 
 router.post('/user_add', async (req, res) => {
+  console.log('Sign-in request received');
+  console.log('Request body:', req.body);
   const { email, password } = req.body;
 
   try {
