@@ -1,8 +1,8 @@
 // backend/routes/student.route.js
-
-const express = require('express');
-const router = express.Router();
-const Counter = require('../models/Counter');
+import { Router } from 'express';
+const router = Router();  
+import Counter from '../models/Counter.js'; // Assuming you have a Counter model defined  
+//const Counter = require('../models/Counter');
 
 // CREATE
 router.post('/', async (req, res, next) => {
